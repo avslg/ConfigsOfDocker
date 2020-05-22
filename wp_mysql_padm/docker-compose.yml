@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  # Database
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE:  #NAME DB !!!
+      MYSQL_USER:   # LOGIN !!!
+      MYSQL_PASSWORD: # PASSWORD  
+    networks:
+      - wpsite
+  # phpmyadmin
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      UPLOAD_LIMIT: 2000000000
+    networks:
+      - wpsite
+  # Wordpress
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    ports:
+      - "8000:80"
+    restart: always
+    volumes: 
+      - ./public_html:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME:   #NAME DB !!!
+      WORDPRESS_DB_USER:   #USER DB !!!
+      WORDPRESS_DB_PASSWORD:   #PASSWORD DB !!!
+    networks:
+      - wpsite
+networks:
+  wpsite:
+volumes:
+  db_data:
